@@ -1,50 +1,129 @@
 const Octokit = require("@octokit/rest");
 
+// const octokit = new Octokit({ auth });
 const octokit = new Octokit({ auth: process.env.GITHUB_API_TOKEN });
-const owner = "miyauci";
-const repo = "simple-git-test";
 
-async function update() {
-  octokit.repos.updateFile;
-  const content = await octokit.repos.getContents({
-    owner,
-    repo,
-    ref: "heads/master",
-    path: "README.md"
-  });
-  console.log(content);
-  const data = new Buffer.alloc(
-    16,
-    content.data.content,
-    content.data.encoding
-  ).toString();
-  console.log(data);
+// async function update({
+//   owner = "qualitia-cdev",
+//   repo,
+//   ref,
+//   targetFilePath,
+//   context
+// }) {
+//   const content = await octokit.repos.getContents({
+//     owner,
+//     repo,
+//     ref,
+//     path: targetFilePath
+//   });
+
+//   console.log(content);
+
+//   await octokit.repos
+//     .createOrUpdateFile({
+//       owner,
+//       repo,
+//       message: ":tada:docs(README)",
+//       path: "README.md",
+//       content: new Buffer.from(context).toString("base64"),
+//       sha: content.data.sha
+//     })
+//     .catch(e => {
+//       console.log(e);
+//     });
+// }
+
+// update({
+//   owner: "qualitia-cdev",
+//   repo: "githubapi-test",
+//   ref: "heads/master",
+//   targetFilePath: "README.md",
+//   context: "123"
+// });
+
+// const getContent = ({ owner, repo, ref, targetFilePath }) => {
+//   return octokit.repos.getContents({
+//     owner,
+//     repo,
+//     ref,
+//     path: targetFilePath
+//   });
+// };
+
+// const createOrUpdate = ({
+//   owner,
+//   repo,
+//   ref,
+//   targetFilePath,
+//   commitMessage,
+//   sha
+// }) => {
+//   return octokit.repos.createOrUpdateFile({
+//     owner,
+//     repo,
+//     ref,
+//     message: commitMessage,
+//     path: targetFilePath,
+//     content: new Buffer.from(content).toString("base64"),
+//     sha
+//   });
+// };
+
+const main = async ({
+  commitMessage = "auto commit",
+  owner = "qualitia-cdev",
+  repo,
+  ref,
+  targetFilePath,
+  content
+}) => {
+  const cm = `:robot:ci(${targetFilePath}):${commitMessage}`;
+  const contents = await octokit.repos
+    .getContents({
+      owner,
+      repo,
+      ref,
+      path: targetFilePath
+    })
+    .catch(e => {
+      console.log(e);
+    });
+
+  const sha = contents ? contents.data.sha : "";
 
   await octokit.repos
     .createOrUpdateFile({
       owner,
       repo,
-      message: ":tada:docs(README)",
-      path: "README.md",
-      content: new Buffer.from(`更新したよ`).toString("base64"),
-      sha: content.data.sha
-      //   sha: content.data.sha
+      ref,
+      message: cm,
+      path: targetFilePath,
+      content: new Buffer.from(content).toString("base64"),
+      sha
     })
     .catch(e => {
       console.log(e);
     });
-}
+};
+
+main({
+  repo: "githubapi-test",
+  ref: "master",
+  targetFilePath: "ssssREAME.md",
+  content: "123"
+});
 
 exports.handler = async event => {
   if (!event.param)
     return {
       statusCode: 400,
-      body: "Param is nessesary"
+      body: "Parameter is nessesary"
     };
-  update();
+
+  await main({ ...event });
   const response = {
     statusCode: 200,
-    body: JSON.stringify("Starting deploy to production!")
+    body: "Starting deploy to production!"
   };
   return response;
 };
