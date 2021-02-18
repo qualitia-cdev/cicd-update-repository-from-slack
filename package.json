@@ -11,6 +11,7 @@
     "@octokit/rest": "^16.36.0"
   },
   "scripts": {
-    "dev": "yarn ts-node index.ts"
+    "dev": "yarn ts-node index.ts",
+    "build": "yarn tsc index.ts && zip -r function.zip node_modules index.js"
   }
 }
