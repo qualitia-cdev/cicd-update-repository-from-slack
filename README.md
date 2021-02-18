@@ -15,5 +15,5 @@ yarn build
 
 ## deploy
 
-to: cdev.infra
+to: cdev.infra  
 zip ファイルを Lambda へ手動デプロイ
