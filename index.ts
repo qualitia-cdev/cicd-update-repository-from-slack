@@ -29,7 +29,7 @@ const main = async ({ ref = "master", repo, target_file_path, commit_sha, stage 
       repo: repoName,
       path: refToProd,
       // ref: commit_sha
-      ref: ref
+      // ref: ref
     })
     .catch(e => {
     });
@@ -39,7 +39,7 @@ const main = async ({ ref = "master", repo, target_file_path, commit_sha, stage 
       .createOrUpdateFile({
         owner: OWNER,
         repo: repoName,
-        ref,
+        // ref,
         message: cm,
         path: refToProd,
         content: contents.data.content,
@@ -54,7 +54,7 @@ const main = async ({ ref = "master", repo, target_file_path, commit_sha, stage 
       .createOrUpdateFile({
         owner: OWNER,
         repo: repoName,
-        ref,
+        // ref,
         message: cm,
         path: refToProd,
         content: contents.data.content
