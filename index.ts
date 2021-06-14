@@ -8,7 +8,8 @@ const main = async ({ ref = "master", repo, target_file_path, commit_sha, stage 
   const repoName = repo.slice(repo.indexOf("/") + 1);
   const refToProd = target_file_path.replace(stage, next_stage);
   const short_sha = commit_sha.slice(0, 8);
-  const cm = `${COMMIT_MESSAGE} ${stage}:${short_sha}→${next_stage}`;
+  const app = target_file_path.slice(0, target_file_path.indexOf("/"));
+  const cm = `${COMMIT_MESSAGE} ${app}:${stage}:${short_sha}→${next_stage}`;
 
   const contents = await octokit.repos
     .getContents({
