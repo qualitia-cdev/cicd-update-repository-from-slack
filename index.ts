@@ -4,10 +4,11 @@ const octokit = new Octokit({ auth: process.env.GITHUB_API_TOKEN });
 const OWNER = "qualitia-cdev";
 const COMMIT_MESSAGE = "Auto commit";
 
-const main = async ({ ref = "master", repo, target_file_path, commit_sha }) => {
+const main = async ({ ref = "master", repo, target_file_path, commit_sha, stage = "develop", next_stage = "prod" }) => {
   const repoName = repo.slice(repo.indexOf("/") + 1);
-  const refToProd = target_file_path.replace("develop", "prod");
-  const cm = `:robot:ci(${refToProd}):${COMMIT_MESSAGE}`;
+  const refToProd = target_file_path.replace(stage, next_stage);
+  const short_sha = commit_sha.slice(0, 8);
+  const cm = `${COMMIT_MESSAGE} ${stage}:${short_sha}→${next_stage}`;
 
   const contents = await octokit.repos
     .getContents({
@@ -26,11 +27,10 @@ const main = async ({ ref = "master", repo, target_file_path, commit_sha }) => {
       owner: OWNER,
       repo: repoName,
       path: refToProd,
-      ref: commit_sha
+      // ref: commit_sha
+      ref: ref
     })
     .catch(e => {
-      console.log(e);
-      throw "Error";
     });
 
   if (prodContents) {
@@ -63,18 +63,20 @@ const main = async ({ ref = "master", repo, target_file_path, commit_sha }) => {
         throw "Error";
       });
   }
+  return {
+    statusCode: 200,
+    body: cm
+  };
 };
 
 exports.handler = async event => {
-  await main({ ...event }).catch(() => {
+  console.log(event);
+  const ret = await main({ ...event }).catch(() => {
     return {
       statusCode: 400,
       body: "Fail to deploy.."
     };
   });
 
-  return {
-    statusCode: 200,
-    body: "Starting deploy to production!"
-  };
+  return ret;
 };
